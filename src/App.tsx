@@ -1,7 +1,7 @@
 import "@/styles/globals.css"
 import { useQuery } from "@tanstack/react-query"
 import type { Question } from "../types"
-import QuestionSkeleton from "./components/QuestionSkeleton"
+import InterfaceSkeleton from "./components/InterfaceSkeleton"
 import Wizard from "./components/Wizard"
 import BaseLayout from "./layouts/BaseLayout"
 
@@ -9,6 +9,8 @@ function App() {
   const { data, error, isLoading } = useQuery({
     queryKey: ["questions"],
     staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
     queryFn: async () => {
       const res = await fetch("/api/questions")
       const data = (await res.json()) as Promise<Question[]>
@@ -20,8 +22,7 @@ function App() {
     return (
       <BaseLayout>
         <div className="space-y-4">
-          <p>Loading...</p>
-          <QuestionSkeleton repeat={5} />
+          <InterfaceSkeleton />
         </div>
       </BaseLayout>
     )

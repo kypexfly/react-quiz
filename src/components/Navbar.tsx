@@ -10,7 +10,6 @@ const Navbar = () => {
 
   const onReset = () => {
     removeUserResponses()
-    window.location.reload()
   }
 
   return (

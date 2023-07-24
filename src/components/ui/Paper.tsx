@@ -6,7 +6,7 @@ const Paper = ({ children, className, ...props }: PaperProps) => {
   return (
     <div
       className={cn(
-        "rounded-xl border bg-white px-6 py-4 shadow-lg shadow-zinc-200/50",
+        "rounded-xl bg-white px-6 py-4 shadow-lg shadow-zinc-200/50",
         className
       )}
       {...props}

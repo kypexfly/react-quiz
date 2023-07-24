@@ -1,7 +1,10 @@
-import { useState } from "react"
 import { useLocalStorage } from "@mantine/hooks"
+import { useMutation } from "@tanstack/react-query"
+import axios from "axios"
 import { Question } from "types"
 import { cn } from "@/lib/utils"
+import useWizard from "@/hooks/useWizard"
+import { SubmitResponse } from "../../validators"
 import { Icons } from "./Icons"
 import { Button } from "./ui/Button"
 import Paper from "./ui/Paper"
@@ -15,13 +18,10 @@ export interface Step {
 
 interface WizardProps {
   steps: Step[]
-  // userResponses: number[]
-  // setAnswers: (index: number, value: number) => void
-  // onComplete: () => void
 }
 
 const Wizard = ({ steps }: WizardProps) => {
-  const [step, setStep] = useState<number>(0)
+  const { step, setStep, handleNext, handlePrevious } = useWizard(steps.length)
 
   const [userResponses, setUserResponses] = useLocalStorage<number[]>({
     key: "userResponses",
@@ -37,27 +37,29 @@ const Wizard = ({ steps }: WizardProps) => {
 
   const currentStep = steps[step]
 
-  const handleNext = () => {
-    if (step < steps.length - 1) {
-      window.scrollTo(0, 0)
-      setStep(step + 1)
-    }
+  const {
+    mutate: submitResponses,
+    data,
+    isLoading,
+  } = useMutation({
+    mutationFn: async (userResponses: number[]) => {
+      const payload = { userResponses }
+      const { data } = await axios.post<SubmitResponse>("/api/check/", payload)
+      return data
+    },
+    onSuccess() {
+      setStep(0)
+    },
+  })
+
+  const handleOnSubmit = () => {
+    submitResponses(userResponses)
   }
-
-  const handlePrevious = () => {
-    if (step > 0) {
-      window.scrollTo(0, 0)
-      setStep(step - 1)
-    }
-  }
-
-  const onComplete = () => {}
-
-  const progress = (step / (steps.length - 1)) * 100
 
   return (
     <>
       <Paper>
+        <div>{JSON.stringify(userResponses)}</div>
         <nav className="mb-4 flex flex-wrap gap-3">
           {userResponses.map((response, index) => (
             <button
@@ -73,23 +75,6 @@ const Wizard = ({ steps }: WizardProps) => {
             </button>
           ))}
         </nav>
-
-        {/* <p>
-          Step {step + 1} of {steps.length}
-        </p>
-        <div
-          className="h-4 w-full rounded-full"
-          style={{
-            backgroundColor: "#ddd",
-          }}
-        >
-          <div
-            className="h-[inherit] rounded-full bg-cyan-500"
-            style={{
-              width: `${progress}%`,
-            }}
-          ></div>
-        </div> */}
       </Paper>
       <nav className="flex justify-between gap-3">
         <Button
@@ -115,15 +100,16 @@ const Wizard = ({ steps }: WizardProps) => {
           step={step}
         />
       </Paper>
-      {step === steps.length - 1 ||
-        (userResponses.every((r) => r != null) && (
-          <Button
-            className="w-full bg-cyan-500 py-6 hover:bg-cyan-600"
-            onClick={onComplete}
-          >
-            Submit
-          </Button>
-        ))}
+      {(step === steps.length - 1 || userResponses.every((r) => r != null)) && (
+        <Button
+          disabled={isLoading}
+          className="w-full bg-cyan-500 py-6 hover:bg-cyan-600"
+          onClick={handleOnSubmit}
+        >
+          {isLoading && <Icons.loader className="mr-2 animate-spin" />} Submit
+        </Button>
+      )}
+      {data && <div>{JSON.stringify(data)}</div>}
     </>
   )
 }
