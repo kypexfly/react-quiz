@@ -26,7 +26,7 @@
       "@/*": ["./src/*"]
     },
   },
-  "include": ["src", "api", "lib", ".eslintrc.cjs"],
+  "include": ["src", "api", ".eslintrc.cjs"],
   "exclude": ["node_modules", "dist"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

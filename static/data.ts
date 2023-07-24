@@ -1,6 +1,6 @@
 export type Question = [string, string[], number]
 
-const questions: Question[] = [
+export const questions: Question[] = [
   [
     "What does CSS stand for?",
     [
@@ -188,4 +188,3 @@ const questions: Question[] = [
   ],
 ]
 
-export default questions
