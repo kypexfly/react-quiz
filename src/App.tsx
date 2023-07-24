@@ -1,13 +1,12 @@
 import "@/styles/globals.css"
 import { useQuery } from "@tanstack/react-query"
-import { Question, questions } from "api/_data"
-import Paper from "./components/ui/Paper"
-import { Skeleton } from "./components/ui/Skeleton"
+import type { Question } from "../types"
+import QuestionSkeleton from "./components/QuestionSkeleton"
 import Wizard from "./components/Wizard"
 import BaseLayout from "./layouts/BaseLayout"
 
 function App() {
-  const { data, isError, isLoading } = useQuery({
+  const { data, error, isLoading } = useQuery({
     queryKey: ["questions"],
     staleTime: Infinity,
     queryFn: async () => {
@@ -17,98 +16,37 @@ function App() {
     },
   })
 
+  if (isLoading) {
+    return (
+      <BaseLayout>
+        <div className="space-y-4">
+          <p>Loading...</p>
+          <QuestionSkeleton repeat={5} />
+        </div>
+      </BaseLayout>
+    )
+  }
+
+  if (error) {
+    return (
+      <BaseLayout>
+        <div className="space-y-4">Something went wrong</div>
+      </BaseLayout>
+    )
+  }
+
+  const steps = data!.map((question) => ({
+    title: question[0],
+    questions: [question],
+  }))
+
   return (
     <BaseLayout>
-      <Paper className="h-full">
-        <div className="space-y-4">
-          {!isLoading && data && (
-            <Wizard
-              steps={[
-                {
-                  title: "Step 1",
-                  description: "This is a quiz about programming",
-                  questions: questions.slice(0, 5),
-                },
-                {
-                  title: "Step 2",
-                  description: "What is the best programming language?",
-                  questions: questions.slice(5, 10),
-                },
-                {
-                  title: "Step 3",
-                  description: "What is the best programming language?",
-                  questions: questions.slice(10, 15),
-                },
-                {
-                  title: "Step 4",
-                  description: "What is the best programming language?",
-                  questions: questions.slice(15, 20),
-                },
-              ]}
-              onComplete={() => console.log("Complete")}
-            />
-          )}
-          {isLoading && <QuestionSkeleton repeat={5} />}
-          {!isLoading && data && <Formulary questions={data.slice(0, 5)} />}
-          {isError && "Something wen wrong"}
-        </div>
-      </Paper>
+      <div className="space-y-4">
+        <Wizard steps={steps} />
+      </div>
     </BaseLayout>
   )
-}
-
-const Formulary = ({ questions }: { questions: Question[] }) => {
-  return (
-    <form>
-      {questions.map((q, i) => {
-        return (
-          <>
-            <p className="font-bold">{`${i + 1}. ${q[0]}`}</p>
-            <div className="my-6 grid grid-cols-2 gap-4">
-              {q[1].map((answer, j) => (
-                <fieldset
-                  id={`question-${i + 1}}`}
-                  key={`answer-${j}`}
-                  className="flex items-center rounded border border-gray-200 pl-4"
-                >
-                  <input
-                    id={`radio-q${i + 1}-${j + 1}`}
-                    type="radio"
-                    name={`question-${i + 1}}`}
-                    className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600"
-                  />
-                  <label
-                    htmlFor={`radio-q${i + 1}-${j + 1}`}
-                    className="ml-2 w-full py-4 text-sm font-medium text-gray-900"
-                  >
-                    {answer}
-                  </label>
-                </fieldset>
-              ))}
-            </div>
-          </>
-        )
-      })}
-    </form>
-  )
-}
-
-const QuestionSkeleton = ({ repeat = 1 }: { repeat?: number }) => {
-  return Array(repeat)
-    .fill(0)
-    .map((_, i) => {
-      return (
-        <div key={i} className="flex flex-col items-center space-y-4">
-          <Skeleton className="h-6 w-full" />
-          <div className="my-6 grid w-full grid-cols-2 gap-4">
-            <Skeleton className="h-12" />
-            <Skeleton className="h-12" />
-            <Skeleton className="h-12" />
-            <Skeleton className="h-12" />
-          </div>
-        </div>
-      )
-    })
 }
 
 export default App

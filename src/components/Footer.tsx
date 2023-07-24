@@ -8,15 +8,9 @@ const Footer = () => {
 
         <ul className="flex items-center gap-4 [&_a]:flex [&_a]:items-center [&_a]:gap-2">
           <li>
-            <a href="/#">
+            <a target="_blank" href="https://github.com/kypexfly/react-quiz" rel="noreferrer">
               <Icons.github />
               Github
-            </a>
-          </li>
-          <li>
-            <a href="/#">
-              <Icons.user />
-              Ricardo Chu
             </a>
           </li>
         </ul>

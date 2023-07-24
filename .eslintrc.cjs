@@ -10,7 +10,12 @@ module.exports = {
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
   ],
-  ignorePatterns: ["vite.config.ts", ".eslintrc.cjs"],
+  ignorePatterns: [
+    "vite.config.ts",
+    ".eslintrc.cjs",
+    "tailwind.config.js",
+    "types",
+  ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",

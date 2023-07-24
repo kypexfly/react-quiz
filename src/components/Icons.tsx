@@ -1,10 +1,12 @@
-import { Github, User, type LucideIcon, type LucideProps } from "lucide-react"
+import { ChevronLeft, ChevronRight, Github, User, type LucideIcon, type LucideProps } from "lucide-react"
 
 export type Icon = LucideIcon
 
 export const Icons = {
   github: Github,
   user: User,
+  prev: ChevronLeft,
+  next: ChevronRight,
   logo: (props: LucideProps) => (
     <svg viewBox="0 0 508 508" width={24} height={24} {...props}>
       <circle style={{ fill: "#84DBFF" }} cx={254} cy={254} r={254} />
