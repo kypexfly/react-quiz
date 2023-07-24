@@ -19,37 +19,8 @@ function App() {
     <BaseLayout>
       <Paper className="h-full">
         <div className="space-y-4">
-          {isLoading && <QuestionSkeleton />}
-          {!isLoading && (
-            <>
-              {data?.map((question, i) => (
-                <div key={i}>
-                  <p className="font-bold">{`${i + 1}. ${question[0]}`}</p>
-                  <div className="my-6 grid grid-cols-2 gap-4">
-                    {question[1].map((answer, i) => (
-                      <div
-                        key={`answer-${i}`}
-                        className="flex items-center rounded border border-gray-200 pl-4"
-                      >
-                        <input
-                          id="bordered-radio-1"
-                          type="radio"
-                          name="bordered-radio"
-                          className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                        />
-                        <label
-                          htmlFor="bordered-radio-1"
-                          className="ml-2 w-full py-4 text-sm font-medium text-gray-900"
-                        >
-                          {answer}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
+          {isLoading && <QuestionSkeleton repeat={5} />}
+          {!isLoading && data && <Formulary questions={data.slice(0,5)} />}
           {isError && "Something wen wrong"}
         </div>
       </Paper>
@@ -57,16 +28,58 @@ function App() {
   )
 }
 
-const QuestionSkeleton = () => {
+const Formulary = ({ questions }: { questions: Question[] }) => {
   return (
-    <div className="flex items-center space-x-4">
-      <Skeleton className="h-12 w-12 rounded-full" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-4 w-[200px]" />
-      </div>
-    </div>
+    <form>
+      {questions.map((q, i) => {
+        return (
+          <>
+            <p className="font-bold">{`${i + 1}. ${q[0]}`}</p>
+            <div className="my-6 grid grid-cols-2 gap-4">
+              {q[1].map((answer, j) => (
+                <fieldset
+                  id={`question-${i + 1}}`}
+                  key={`answer-${j}`}
+                  className="flex items-center rounded border border-gray-200 pl-4"
+                >
+                  <input
+                    id={`radio-q${i + 1}-${j + 1}`}
+                    type="radio"
+                    name={`question-${i + 1}}`}
+                    className="h-4 w-4 border-gray-300 bg-gray-100 text-blue-600"
+                  />
+                  <label
+                    htmlFor={`radio-q${i + 1}-${j + 1}`}
+                    className="ml-2 w-full py-4 text-sm font-medium text-gray-900"
+                  >
+                    {answer}
+                  </label>
+                </fieldset>
+              ))}
+            </div>
+          </>
+        )
+      })}
+    </form>
   )
+}
+
+const QuestionSkeleton = ({ repeat = 1 }: { repeat?: number }) => {
+  return Array(repeat)
+    .fill(0)
+    .map((_, i) => {
+      return (
+        <div key={i} className="flex flex-col items-center space-y-4">
+          <Skeleton className="h-6 w-full" />
+          <div className="my-6 grid w-full grid-cols-2 gap-4">
+            <Skeleton className="h-12" />
+            <Skeleton className="h-12" />
+            <Skeleton className="h-12" />
+            <Skeleton className="h-12" />
+          </div>
+        </div>
+      )
+    })
 }
 
 export default App

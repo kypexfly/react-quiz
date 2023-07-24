@@ -17,7 +17,7 @@
     "forceConsistentCasingInFileNames": true,
 
     /* Linting */
-    // "strict": true,
+    "strict": true,
     // "noUnusedLocals": true,
     // "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
@@ -26,7 +26,7 @@
       "@/*": ["./src/*"]
     },
   },
-  "include": ["src", "api", ".eslintrc.cjs"],
+  "include": ["src", "api"],
   "exclude": ["node_modules", "dist"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

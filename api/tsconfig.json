@@ -2,7 +2,7 @@
     "compilerOptions": {
       "target": "ES2020",
       "useDefineForClassFields": true,
-      "lib": ["ESNext", "DOM", "DOM.Iterable"],
+      "lib": ["ESNext"],
       "module": "ESNext",
       "skipLibCheck": true,
   
@@ -12,15 +12,10 @@
       "resolveJsonModule": true,
       "isolatedModules": true,
       "noEmit": true,
-      "jsx": "react-jsx",
       "forceConsistentCasingInFileNames": true,
   
       /* Linting */
       "strict": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "noFallthroughCasesInSwitch": true,
     },
-    "include": [".", "./**/*.ts"],
   }
   
