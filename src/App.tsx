@@ -1,13 +1,15 @@
 import "@/styles/globals.css"
 import { useQuery } from "@tanstack/react-query"
-import { Question } from "api/_data"
+import { Question, questions } from "api/_data"
 import Paper from "./components/ui/Paper"
 import { Skeleton } from "./components/ui/Skeleton"
+import Wizard from "./components/Wizard"
 import BaseLayout from "./layouts/BaseLayout"
 
 function App() {
   const { data, isError, isLoading } = useQuery({
     queryKey: ["questions"],
+    staleTime: Infinity,
     queryFn: async () => {
       const res = await fetch("/api/questions")
       const data = (await res.json()) as Promise<Question[]>
@@ -19,8 +21,35 @@ function App() {
     <BaseLayout>
       <Paper className="h-full">
         <div className="space-y-4">
+          {!isLoading && data && (
+            <Wizard
+              steps={[
+                {
+                  title: "Step 1",
+                  description: "This is a quiz about programming",
+                  questions: questions.slice(0, 5),
+                },
+                {
+                  title: "Step 2",
+                  description: "What is the best programming language?",
+                  questions: questions.slice(5, 10),
+                },
+                {
+                  title: "Step 3",
+                  description: "What is the best programming language?",
+                  questions: questions.slice(10, 15),
+                },
+                {
+                  title: "Step 4",
+                  description: "What is the best programming language?",
+                  questions: questions.slice(15, 20),
+                },
+              ]}
+              onComplete={() => console.log("Complete")}
+            />
+          )}
           {isLoading && <QuestionSkeleton repeat={5} />}
-          {!isLoading && data && <Formulary questions={data.slice(0,5)} />}
+          {!isLoading && data && <Formulary questions={data.slice(0, 5)} />}
           {isError && "Something wen wrong"}
         </div>
       </Paper>
