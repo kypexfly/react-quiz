@@ -1,7 +1,6 @@
 import "@/styles/globals.css"
-import { Fragment } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Question } from "api/questions"
+import { Question } from "api/_data"
 import Paper from "./components/ui/Paper"
 import { Skeleton } from "./components/ui/Skeleton"
 import BaseLayout from "./layouts/BaseLayout"
