@@ -1,9 +1,8 @@
+import { InterfaceSkeleton, Wizard } from "@/components"
+import BaseLayout from "@/layouts/BaseLayout"
 import "@/styles/globals.css"
 import { useQuery } from "@tanstack/react-query"
 import type { Question } from "../types"
-import InterfaceSkeleton from "./components/InterfaceSkeleton"
-import Wizard from "./components/Wizard"
-import BaseLayout from "./layouts/BaseLayout"
 
 function App() {
   const { data, error, isLoading } = useQuery({
@@ -18,34 +17,22 @@ function App() {
     },
   })
 
-  if (isLoading) {
-    return (
-      <BaseLayout>
-        <div className="space-y-4">
-          <InterfaceSkeleton />
-        </div>
-      </BaseLayout>
-    )
-  }
-
-  if (error) {
-    return (
-      <BaseLayout>
-        <div className="space-y-4">Something went wrong</div>
-      </BaseLayout>
-    )
-  }
-
-  const steps = data!.map((question) => ({
-    title: question[0],
-    questions: [question],
-  }))
+  const steps =
+    data &&
+    data.map((question) => ({
+      title: question[0],
+      questions: [question],
+    }))
 
   return (
     <BaseLayout>
-      <div className="space-y-4">
-        <Wizard steps={steps} />
-      </div>
+      {isLoading ? (
+        <InterfaceSkeleton />
+      ) : error ? (
+        "Something went wrong"
+      ) : (
+        <Wizard steps={steps!} />
+      )}
     </BaseLayout>
   )
 }

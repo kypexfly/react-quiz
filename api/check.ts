@@ -1,14 +1,11 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { z } from "zod"
+import { SubmitRequestValidator } from "../validators/index.js"
 import { questions } from "./_data.js"
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    const { userResponses } = z
-      .object({
-        userResponses: z.array(z.union([z.number(), z.null()])),
-      })
-      .parse(req.body)
+    const { userResponses } = SubmitRequestValidator.parse(req.body)
 
     const answers = questions.map((question) => [question[2]])
 

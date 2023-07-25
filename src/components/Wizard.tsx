@@ -1,9 +1,19 @@
 import { useLocalStorage } from "@mantine/hooks"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import axios from "axios"
 import { Question } from "types"
 import { cn } from "@/lib/utils"
 import useWizard from "@/hooks/useWizard"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/AlertDialog"
 import { SubmitResponse } from "../../validators"
 import { Icons } from "./Icons"
 import { Button } from "./ui/Button"
@@ -23,12 +33,14 @@ interface WizardProps {
 const Wizard = ({ steps }: WizardProps) => {
   const { step, setStep, handleNext, handlePrevious } = useWizard(steps.length)
 
-  const [userResponses, setUserResponses] = useLocalStorage<number[]>({
+  const [userResponses, setUserResponses, removeResponses] = useLocalStorage<
+    number[]
+  >({
     key: "userResponses",
     defaultValue: new Array(steps.length).fill(null),
   })
 
-  const setAnswers = (index: number, value: number) =>
+  const setResponses = (index: number, value: number) =>
     setUserResponses((prev) => {
       const newResponses = [...prev]
       newResponses[index] = value
@@ -37,17 +49,19 @@ const Wizard = ({ steps }: WizardProps) => {
 
   const currentStep = steps[step]
 
-  const {
-    mutate: submitResponses,
-    data,
-    isLoading,
-  } = useMutation({
+  const queryClient = useQueryClient()
+
+  const { mutate: submitResponses, isLoading } = useMutation({
     mutationFn: async (userResponses: number[]) => {
       const payload = { userResponses }
-      const { data } = await axios.post<SubmitResponse>("/api/check/", payload)
+      const { data } = await axios.post<SubmitResponse[]>(
+        "/api/check/",
+        payload
+      )
       return data
     },
-    onSuccess() {
+    onSuccess(data) {
+      queryClient.setQueryData(["results"], data)
       setStep(0)
     },
   })
@@ -58,8 +72,24 @@ const Wizard = ({ steps }: WizardProps) => {
 
   return (
     <>
+      {/* Question navigation */}
       <Paper>
-        <div>{JSON.stringify(userResponses)}</div>
+        <div className="flex justify-between">
+          <h3 className="mb-3 scroll-m-20 text-xl font-semibold tracking-tight">
+            All questions
+          </h3>
+          <Button
+            onClick={() => {
+              removeResponses()
+              queryClient.setQueryData(["results"], null)
+              setStep(0)
+            }}
+            variant="destructive"
+            size="sm"
+          >
+            Reset Quiz
+          </Button>
+        </div>
         <nav className="mb-4 flex flex-wrap gap-3">
           {userResponses.map((response, index) => (
             <button
@@ -76,6 +106,8 @@ const Wizard = ({ steps }: WizardProps) => {
           ))}
         </nav>
       </Paper>
+
+      {/* Navigate next and previous questions */}
       <nav className="flex justify-between gap-3">
         <Button
           className="flex-1 py-6"
@@ -92,24 +124,50 @@ const Wizard = ({ steps }: WizardProps) => {
           Next <Icons.next className="ml-2" />
         </Button>
       </nav>
+
+      {/* Current question */}
       <Paper>
         <WizardForm
-          setAnswers={setAnswers}
+          setResponses={setResponses}
           userResponses={userResponses}
           questions={currentStep.questions}
           step={step}
+          handleNext={handleNext}
         />
       </Paper>
+
+      {/* Submit button */}
       {(step === steps.length - 1 || userResponses.every((r) => r != null)) && (
-        <Button
-          disabled={isLoading}
-          className="w-full bg-cyan-500 py-6 hover:bg-cyan-600"
-          onClick={handleOnSubmit}
-        >
-          {isLoading && <Icons.loader className="mr-2 animate-spin" />} Submit
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              disabled={isLoading}
+              className="w-full bg-cyan-500 py-6 hover:bg-cyan-600"
+            >
+              {isLoading && <Icons.loader className="mr-2 animate-spin" />}{" "}
+              Submit
+            </Button>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent>
+            <AlertDialogTitle>
+              Are you sure you want to submit?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {!userResponses.every((r) => r != null) &&
+                "You have not completed all questions. "}
+              Answers will be shown after submitting.
+            </AlertDialogDescription>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleOnSubmit}>
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
-      {data && <div>{JSON.stringify(data)}</div>}
+      {/* {data && <div className="break-all">{JSON.stringify(data)}</div>} */}
     </>
   )
 }

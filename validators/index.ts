@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export const SubmitRequestValidator = z.object({
-  userResponses: z.array(z.number()),
+  userResponses: z.array(z.union([z.number(), z.null()])),
 })
 
 const SubmitResponseValidator = z.object({
